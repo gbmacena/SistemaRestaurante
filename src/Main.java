@@ -1,4 +1,6 @@
 import dao.Database;
+import dao.Seeder;
+import service.ClienteInterface;
 
 public class Main {
     public static void main(String[] args) {
@@ -12,7 +14,9 @@ public class Main {
 
         Database.initializeDatabase();
 
-        System.out.println("Tabelas criadas (ou já existiam) com sucesso!");
+         Seeder.seedPratosAndBebidas();
+
+        ClienteInterface.consultarCardapio();
 
         Database.closeConnection();
     }
