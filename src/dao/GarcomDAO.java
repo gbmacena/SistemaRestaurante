@@ -86,29 +86,6 @@ public class GarcomDAO {
         return null;
     }
 
-    public Garcom buscarPorCpf(String cpf) throws SQLException {
-        String sql = "SELECT * FROM Garcom WHERE cpf = ?";
-        
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, cpf);
-            ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                Garcom garcom = new Garcom();
-                garcom.setIdGarcom(rs.getInt("id_garcom"));
-                garcom.setNome(rs.getString("nome"));
-                garcom.setCpf(rs.getString("cpf"));
-                garcom.setTelefone(rs.getString("telefone"));
-                garcom.setSalario(rs.getDouble("salario"));
-                garcom.setDataContratacao(LocalDate.parse(rs.getString("data_contratacao")));
-                return garcom;
-            }
-        }
-        return null;
-    }
-
     public List<Garcom> listarTodos() throws SQLException {
         String sql = "SELECT * FROM Garcom ORDER BY nome";
         List<Garcom> garcoms = new ArrayList<>();

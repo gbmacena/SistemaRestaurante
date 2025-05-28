@@ -10,11 +10,13 @@ public class GarcomSeeder {
 
     public static void seedGarcoms() {
         try {
+            // Verificar se já existem garçons
             if (!garcomDAO.listarTodos().isEmpty()) {
                 System.out.println("Garçons já existem no banco.");
                 return;
             }
 
+            // Criar garçons de exemplo
             Garcom garcom1 = new Garcom("João Silva", "123.456.789-01", "(11) 99999-1111", 2500.00);
             garcom1.setDataContratacao(LocalDate.of(2023, 1, 15));
 
@@ -24,6 +26,7 @@ public class GarcomSeeder {
             Garcom garcom3 = new Garcom("Pedro Oliveira", "456.789.123-03", "(11) 99999-3333", 2600.00);
             garcom3.setDataContratacao(LocalDate.of(2023, 6, 5));
 
+            // Inserir no banco
             garcomDAO.inserirGarcom(garcom1);
             garcomDAO.inserirGarcom(garcom2);
             garcomDAO.inserirGarcom(garcom3);
