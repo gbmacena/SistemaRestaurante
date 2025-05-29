@@ -3,13 +3,41 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
 
 public class Seeder {
-    public static void seedPratosAndBebidas() {
-        String sql = "INSERT INTO Prato(nome, descricao, preco, categoria) VALUES(?, ?, ?, ?)";
+    // Método para limpar a tabela Prato
+    public static void limparTabelaPrato() {
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             Statement stmt = conn.createStatement()) {
+             
+            int rows = stmt.executeUpdate("DELETE FROM Prato;");
+            System.out.println("Tabela Prato limpa com sucesso. Registros removidos: " + rows);
+        } catch (SQLException e) {
+            System.out.println("Erro ao limpar tabela Prato: " + e.getMessage());
+        }
+    }
+    
+    public static void seedPratosAndBebidas() {
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement()) {
 
+            // Verifica se a tabela Prato já possui registros
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS count FROM Prato");
+            rs.next();
+            int count = rs.getInt("count");
+            if (count > 0) {
+                System.out.println("Tabela Prato já populada. Seeding ignorado.");
+                return;
+            }
+
+            // Ou execute uTRUNCATE se preferir limpar e semear novamente
+            // stmt.executeUpdate("DELETE FROM Prato");
+
+            // Agora insira os pratos
+            stmt.executeUpdate("INSERT INTO Prato (nome, descricao, preco, categoria) VALUES ('Prato 1', 'Descrição', 10.0, 'Principal')");
+            stmt.executeUpdate("INSERT INTO Prato(nome, descricao, preco, categoria) VALUES(?, ?, ?, ?)");
             stmt.setString(1, "Pizza Margherita");
             stmt.setString(2, "Pizza de mussarela com manjericão");
             stmt.setDouble(3, 25.0);

@@ -47,11 +47,10 @@ public class Database {
                     "categoria TEXT NOT NULL" +
                     ")";
 
-            // Tabela Pedido (atualizada com id_garcom)
             String createPedidoTable = "CREATE TABLE IF NOT EXISTS Pedido (" +
                     "id_pedido INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "id_cliente INTEGER NOT NULL, " +
-                    "id_garcom INTEGER NOT NULL, " +
+                    "id_garcom INTEGER NOT NULL, " +  
                     "data_hora TEXT NOT NULL, " +
                     "status TEXT NOT NULL DEFAULT 'PENDENTE', " +
                     "FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente), " +
@@ -74,11 +73,25 @@ public class Database {
             stmt.execute(createPedidoTable);
             stmt.execute(createPedidoPratoTable);
 
+            // Executa migração para adicionar coluna id_garcom se ela não existir
+            migrarPedido(stmt);
+
             System.out.println("Banco de dados inicializado com sucesso!");
 
         } catch (SQLException e) {
             System.out.println("Erro ao inicializar banco de dados: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private static void migrarPedido(Statement stmt) {
+        try {
+            String alterSql = "ALTER TABLE Pedido ADD COLUMN id_garcom INTEGER";
+            stmt.execute(alterSql);
+            System.out.println("Migração executada: Coluna id_garcom adicionada à tabela Pedido.");
+        } catch (SQLException e) {
+           
+            System.out.println("Migração não necessária ou já aplicada: " + e.getMessage());
         }
     }
 
