@@ -1,28 +1,93 @@
 package service;
 
-import dao.PratoDAO;
 import dao.ClienteDAO;
-import model.Prato;
+import dao.PratoDAO;
+import dao.PedidoDAO;
 import model.Cliente;
+import model.Prato;
+import model.Pedido;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
 public class GerenteService {
 
-    // Métodos de consulta (suponha já implementados, por exemplo, que executam SELECT com filtros)
-    public static void consultarPedidos(String status, Integer idCliente) {
-        // Chama métodos no PedidoDAO para consulta e imprime os resultados.
-        System.out.println("[CONSULTA PEDIDOS] Status: " + status + ", Cliente: " + idCliente);
+    private ClienteDAO clienteDAO;
+    private PratoDAO pratoDAO;
+    private PedidoDAO pedidoDAO;
+
+    public GerenteService() {
+        clienteDAO = new ClienteDAO();
+        pratoDAO = new PratoDAO();
+        pedidoDAO = new PedidoDAO();
     }
-    
-    public static void consultarPratos(String categoria) {
-        // Chama método no PratoDAO para consulta e imprime o cardápio filtrado.
-        System.out.println("[CONSULTA PRATOS] Categoria: " + categoria);
-    }
-    
-    // Adicionar prato
-    public static void adicionarPrato() {
+
+    public void cadastrarCliente() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("\n--- ADICIONAR PRATO ---");
+        System.out.println("\n--- Cadastrar Cliente ---");
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine();
+        System.out.print("Telefone: ");
+        String telefone = scanner.nextLine();
+        System.out.print("E-mail: ");
+        String email = scanner.nextLine();
+        
+        Cliente cliente = new Cliente(nome, telefone, email);
+        try {
+            int id = clienteDAO.inserirCliente(cliente);
+            System.out.println("Cliente cadastrado com sucesso! ID: " + id);
+        } catch (SQLException e) {
+            System.out.println("Erro ao cadastrar cliente: " + e.getMessage());
+        }
+    }
+
+    public void modificarCliente() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n--- Modificar Cliente ---");
+        System.out.print("Digite o ID do cliente: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Novo nome: ");
+        String nome = scanner.nextLine();
+        System.out.print("Novo telefone: ");
+        String telefone = scanner.nextLine();
+        System.out.print("Novo e-mail: ");
+        String email = scanner.nextLine();
+        
+        Cliente cliente = new Cliente(id, nome, telefone, email);
+        try {
+            boolean sucesso = clienteDAO.atualizarCliente(cliente);
+            if (sucesso) {
+                System.out.println("Cliente atualizado com sucesso!");
+            } else {
+                System.out.println("Cliente não encontrado ou erro ao atualizar!");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar cliente: " + e.getMessage());
+        }
+    }
+
+    public void excluirCliente() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n--- Excluir Cliente ---");
+        System.out.print("Digite o ID do cliente: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        try {
+            boolean sucesso = clienteDAO.excluirCliente(id);
+            if (sucesso) {
+                System.out.println("Cliente excluído com sucesso!");
+            } else {
+                System.out.println("Cliente não encontrado ou erro ao excluir!");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao excluir cliente: " + e.getMessage());
+        }
+    }
+
+    public void cadastrarPrato() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n--- Cadastrar Prato ---");
         System.out.print("Nome: ");
         String nome = scanner.nextLine();
         System.out.print("Descrição: ");
@@ -34,18 +99,18 @@ public class GerenteService {
         String categoria = scanner.nextLine();
         
         Prato prato = new Prato(nome, descricao, preco, categoria);
-        int id = PratoDAO.inserirPrato(prato);
-        if(id > 0)
-            System.out.println("Prato adicionado com sucesso! ID: " + id);
-        else
-            System.out.println("Erro ao adicionar prato.");
+        try {
+            int id = pratoDAO.inserirPrato(prato);
+            System.out.println("Prato cadastrado com sucesso! ID: " + id);
+        } catch (SQLException e) {
+            System.out.println("Erro ao cadastrar prato: " + e.getMessage());
+        }
     }
-    
-    // Modificar prato
-    public static void modificarPrato() {
+
+    public void modificarPrato() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("\n--- MODIFICAR PRATO ---");
-        System.out.print("ID do prato: ");
+        System.out.println("\n--- Modificar Prato ---");
+        System.out.print("Digite o ID do prato: ");
         int id = scanner.nextInt();
         scanner.nextLine();
         System.out.print("Novo nome: ");
@@ -58,84 +123,77 @@ public class GerenteService {
         System.out.print("Nova categoria: ");
         String categoria = scanner.nextLine();
         
-        Prato pratoAtualizado = new Prato(id, nome, descricao, preco, categoria);
-        boolean atualizado = PratoDAO.atualizarPrato(pratoAtualizado);
-        if (atualizado) {
-            System.out.println("Prato atualizado com sucesso.");
-        } else {
-            System.out.println("Falha ao atualizar prato.");
+        Prato prato = new Prato(id, nome, descricao, preco, categoria);
+        try {
+            boolean sucesso = pratoDAO.atualizarPrato(prato);
+            if (sucesso) {
+                System.out.println("Prato atualizado com sucesso!");
+            } else {
+                System.out.println("Prato não encontrado ou erro ao atualizar!");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar prato: " + e.getMessage());
         }
     }
-    
-    // Excluir prato
-    public static void excluirPrato() {
+
+    public void excluirPrato() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("\n--- EXCLUIR PRATO ---");
-        System.out.print("ID do prato: ");
+        System.out.println("\n--- Excluir Prato ---");
+        System.out.print("Digite o ID do prato: ");
         int id = scanner.nextInt();
         scanner.nextLine();
-        boolean excluido = PratoDAO.excluirPrato(id);
-        if (excluido) {
-            System.out.println("Prato excluído com sucesso.");
-        } else {
-            System.out.println("Falha ao excluir prato ou prato não encontrado.");
+        try {
+            boolean sucesso = pratoDAO.excluirPrato(id);
+            if (sucesso) {
+                System.out.println("Prato excluído com sucesso!");
+            } else {
+                System.out.println("Prato não encontrado ou erro ao excluir!");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao excluir prato: " + e.getMessage());
         }
     }
-    
-    // Adicionar cliente
-    public static void adicionarCliente() {
+
+    public void consultarPedidos() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("\n--- ADICIONAR CLIENTE ---");
-        System.out.print("Nome: ");
-        String nome = scanner.nextLine();
-        System.out.print("Telefone: ");
-        String telefone = scanner.nextLine();
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-        
-        Cliente cliente = new Cliente(nome, telefone, email);
-        int id = new ClienteDAO().inserirCliente(cliente);
-        if (id > 0)
-            System.out.println("Cliente adicionado com sucesso! ID: " + id);
-        else
-            System.out.println("Erro ao adicionar cliente.");
-    }
-    
-    // Modificar cliente
-    public static void modificarCliente() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("\n--- MODIFICAR CLIENTE ---");
-        System.out.print("ID do cliente: ");
-        int id = scanner.nextInt();
+        System.out.println("\n--- Consultar Pedidos ---");
+        System.out.print("Filtrar por status (deixe vazio para não filtrar): ");
+        String status = scanner.nextLine();
+        System.out.print("Filtrar por ID do cliente (0 para não filtrar): ");
+        int idCliente = scanner.nextInt();
         scanner.nextLine();
-        System.out.print("Novo nome: ");
-        String nome = scanner.nextLine();
-        System.out.print("Novo telefone: ");
-        String telefone = scanner.nextLine();
-        System.out.print("Novo email: ");
-        String email = scanner.nextLine();
-        
-        Cliente clienteAtualizado = new Cliente(id, nome, telefone, email);
-        boolean sucesso = new ClienteDAO().atualizarCliente(clienteAtualizado);
-        if (sucesso) {
-            System.out.println("Cliente atualizado com sucesso.");
-        } else {
-            System.out.println("Erro ao atualizar cliente ou cliente não encontrado.");
+        try {
+            List<Pedido> pedidos = pedidoDAO.consultarPedidos(status, idCliente);
+            if (pedidos.isEmpty()) {
+                System.out.println("Nenhum pedido encontrado com os filtros aplicados.");
+            } else {
+                for (Pedido pedido : pedidos) {
+                    System.out.println("ID: " + pedido.getIdPedido() +
+                                       " | Cliente: " + pedido.getIdCliente() +
+                                       " | Status: " + pedido.getStatus() +
+                                       " | Data/Hora: " + pedido.getDataHora());
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao consultar pedidos: " + e.getMessage());
         }
     }
-    
-    // Excluir cliente
-    public static void excluirCliente() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("\n--- EXCLUIR CLIENTE ---");
-        System.out.print("ID do cliente: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-        boolean sucesso = new ClienteDAO().excluirCliente(id);
-        if (sucesso) {
-            System.out.println("Cliente excluído com sucesso.");
-        } else {
-            System.out.println("Erro ao excluir cliente ou cliente não encontrado.");
+
+    public void consultarCardapio() {
+        System.out.println("\n---- CARDÁPIO ----");
+        try {
+            List<Prato> pratos = pratoDAO.listarTodos();
+            if (pratos.isEmpty()) {
+                System.out.println("Nenhum prato cadastrado.");
+            } else {
+                for (Prato prato : pratos) {
+                    System.out.println("ID: " + prato.getIdPrato() +
+                                       " | Nome: " + prato.getNome() +
+                                       " | Preço: R$" + prato.getPreco());
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao consultar cardápio: " + e.getMessage());
         }
     }
 }
