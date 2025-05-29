@@ -1,47 +1,51 @@
 package dao;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
 
 public class Seeder {
-    public static void seedPratosAndBebidas() {
-        String sql = "INSERT INTO Prato(nome, descricao, preco, categoria) VALUES(?, ?, ?, ?)";
+    
+    public static void limparTabelaPrato() {
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, "Pizza Margherita");
-            stmt.setString(2, "Pizza de mussarela com manjericão");
-            stmt.setDouble(3, 25.0);
-            stmt.setString(4, "Principal");
-            stmt.executeUpdate();
-
-            stmt.setString(1, "Salada Caesar");
-            stmt.setString(2, "Salada com molho Caesar e croutons");
-            stmt.setDouble(3, 15.0);
-            stmt.setString(4, "Entrada");
-            stmt.executeUpdate();
-
-            stmt.setString(1, "Burger Clássico");
-            stmt.setString(2, "Hambúrguer com queijo, alface, tomate e molho especial");
-            stmt.setDouble(3, 20.0);
-            stmt.setString(4, "Principal");
-            stmt.executeUpdate();
-
-            stmt.setString(1, "Refrigerante Cola");
-            stmt.setString(2, "Lata de refrigerante cola");
-            stmt.setDouble(3, 5.0);
-            stmt.setString(4, "Bebida");
-            stmt.executeUpdate();
+             Statement stmt = conn.createStatement()) {
+             
+            int rows = stmt.executeUpdate("DELETE FROM Prato;");
+            System.out.println("Tabela Prato limpa com sucesso. Registros removidos: " + rows);
+        } catch (SQLException e) {
+            System.out.println("Erro ao limpar a tabela Prato: " + e.getMessage());
+        }
+    }
+    
+    public static void seedPratosAndBebidas() {
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement()) {
+             
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS count FROM Prato;");
+            rs.next();
+            int count = rs.getInt("count");
+            if (count > 0) {
+                System.out.println("Tabela Prato já populada. Seeding ignorado.");
+                return;
+            }
             
-            stmt.setString(1, "Suco de Laranja");
-            stmt.setString(2, "Copo de suco natural de laranja");
-            stmt.setDouble(3, 7.0);
-            stmt.setString(4, "Bebida");
-            stmt.executeUpdate();
-
+            stmt.executeUpdate("INSERT INTO Prato (nome, descricao, preco, categoria) VALUES " +
+                               "('Pizza Margherita', 'Pizza de mussarela com manjericão', 25.0, 'Principal')");
+            
+            stmt.executeUpdate("INSERT INTO Prato (nome, descricao, preco, categoria) VALUES " +
+                               "('Salada Caesar', 'Salada com molho Caesar e croutons', 15.0, 'Entrada')");
+            
+            stmt.executeUpdate("INSERT INTO Prato (nome, descricao, preco, categoria) VALUES " +
+                               "('Burger Clássico', 'Hambúrguer com queijo, alface, tomate e molho especial', 20.0, 'Principal')");
+            
+            stmt.executeUpdate("INSERT INTO Prato (nome, descricao, preco, categoria) VALUES " +
+                               "('Refrigerante Cola', 'Lata de refrigerante cola', 5.0, 'Bebida')");
+            
+            stmt.executeUpdate("INSERT INTO Prato (nome, descricao, preco, categoria) VALUES " +
+                               "('Suco de Laranja', 'Copo de suco natural de laranja', 7.0, 'Bebida')");
+            
             System.out.println("Seeder executado: Pratos e Bebidas inseridos com sucesso!");
-
         } catch (SQLException e) {
             System.out.println("Erro no seeder: " + e.getMessage());
         }
